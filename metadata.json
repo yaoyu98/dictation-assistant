@@ -1,0 +1,7 @@
+{
+  "name": "EchoMaster English",
+  "description": "A sophisticated English dictation and learning app. Listen to AI-generated native speech, type what you hear, receive instant feedback, and get deep linguistic explanations.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
