@@ -1,10 +1,4 @@
 
-export enum Difficulty {
-  BEGINNER = 'Beginner',
-  INTERMEDIATE = 'Intermediate',
-  ADVANCED = 'Advanced'
-}
-
 export interface SentenceData {
   text: string;
   translation: string;
@@ -25,4 +19,6 @@ export interface SessionState {
   isSubmitted: boolean;
   isLoading: boolean;
   audioBuffer: AudioBuffer | null;
+  level: number; // Current level (1, 2, 3...)
+  xp: number;    // XP within current level (0-100)
 }

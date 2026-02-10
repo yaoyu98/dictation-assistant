@@ -1,8 +1,7 @@
 
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { Difficulty, SentenceData } from "../types";
+import { SentenceData } from "../types";
 
-// Manual implementation of decode/encode as required by the guidelines
 function decodeBase64(base64: string): Uint8Array {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -32,12 +31,16 @@ async function decodeAudioData(
   return buffer;
 }
 
-export const generateNewSentence = async (difficulty: Difficulty): Promise<SentenceData> => {
-  // Always initialize GoogleGenAI with the API key from process.env.API_KEY
+export const generateNewSentence = async (level: number): Promise<SentenceData> => {
+  // Instantiate inside the call to get the latest process.env.API_KEY
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: `Generate a natural, commonly used English sentence for a ${difficulty} level learner. Provide a detailed explanation, translation into Chinese, and grammar highlights.`,
+    contents: `Act as an AI IELTS coach. The user is currently at Level ${level}. 
+    Level 1 is beginner, Level 9 is IELTS 6.5, Level 12+ is expert.
+    Generate an English sentence that perfectly fits Level ${level} difficulty.
+    Include a Chinese translation, a brief context explanation, 3 key grammar points relevant to this level, and 3 useful vocabulary words.`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
@@ -45,11 +48,10 @@ export const generateNewSentence = async (difficulty: Difficulty): Promise<Sente
         properties: {
           text: { type: Type.STRING, description: "The English sentence" },
           translation: { type: Type.STRING, description: "Chinese translation" },
-          explanation: { type: Type.STRING, description: "Detailed explanation of the sentence context and usage" },
+          explanation: { type: Type.STRING, description: "Contextual explanation" },
           grammarPoints: {
             type: Type.ARRAY,
-            items: { type: Type.STRING },
-            description: "Key grammar rules used"
+            items: { type: Type.STRING }
           },
           vocabulary: {
             type: Type.ARRAY,
@@ -72,11 +74,10 @@ export const generateNewSentence = async (difficulty: Difficulty): Promise<Sente
 };
 
 export const generateSpeech = async (text: string): Promise<AudioBuffer> => {
-  // Always initialize GoogleGenAI with the API key from process.env.API_KEY
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-preview-tts",
-    contents: [{ parts: [{ text: `Read this clearly: ${text}` }] }],
+    contents: [{ parts: [{ text: `Read this sentence clearly and at a speed appropriate for an English learner: ${text}` }] }],
     config: {
       responseModalities: [Modality.AUDIO],
       speechConfig: {
